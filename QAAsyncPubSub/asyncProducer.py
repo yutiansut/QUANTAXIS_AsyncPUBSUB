@@ -4,7 +4,7 @@ import aio_pika
 
 async def main(loop):
     connection = await aio_pika.connect_robust(
-        "amqp://guest:guest@127.0.0.1/", loop=loop
+        "amqp://admin:admin@127.0.0.1/", loop=loop
     )
 
     routing_key = "test_queue"
@@ -13,7 +13,7 @@ async def main(loop):
 
     await channel.default_exchange.publish(
         aio_pika.Message(
-            body='Hello {}'.format(routing_key).encode()
+            body='Hello asasas{}'.format(routing_key).encode()
         ),
         routing_key=routing_key
     )

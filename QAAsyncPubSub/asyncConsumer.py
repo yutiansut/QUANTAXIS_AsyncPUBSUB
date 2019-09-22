@@ -4,20 +4,27 @@ import aio_pika
 
 async def main(loop):
     connection = await aio_pika.connect_robust(
-        "amqp://guest:guest@127.0.0.1/", loop=loop
+        "amqp://admin:admin@127.0.0.1/", loop=loop
     )
 
     async with connection:
         queue_name = "test_queue"
 
         # Creating channel
-        channel = await connection.channel()    # type: aio_pika.Channel
+        queue_name = "test_queue"
+        routing_key = "test_queue"
+
+        # Creating channel
+        channel = await connection.channel()
+
+        # Declaring exchange
+        exchange = await channel.declare_exchange('tq_test', auto_delete=False)
 
         # Declaring queue
-        queue = await channel.declare_queue(
-            queue_name,
-            auto_delete=True
-        )   # type: aio_pika.Queue
+        queue = await channel.declare_queue(queue_name, auto_delete=True)
+
+        # Binding queue
+        await queue.bind(exchange, routing_key)
 
         async with queue.iterator() as queue_iter:
             # Cancel consuming after __aexit__
@@ -25,8 +32,8 @@ async def main(loop):
                 async with message.process():
                     print(message.body)
 
-                    if queue.name in message.body.decode():
-                        break
+                    # if queue.name in message.body.decode():
+                    #     break
 
 
 if __name__ == "__main__":
